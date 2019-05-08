@@ -106,7 +106,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="ReentrantLock,">
 
 
 
@@ -118,6 +118,7 @@
 
 
 <meta name="description" content="写在前面  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。 正文：  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一">
+<meta name="keywords" content="ReentrantLock">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ReetrantLock浅析">
 <meta property="og:url" content="http://yoursite.com/2019/05/08/ReetrantLock浅析/index.html">
@@ -125,7 +126,7 @@
 <meta property="og:description" content="写在前面  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。 正文：  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://images/pasted-0.png/">
-<meta property="og:updated_time" content="2019-05-08T14:47:00.643Z">
+<meta property="og:updated_time" content="2019-05-08T14:48:30.064Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ReetrantLock浅析">
 <meta name="twitter:description" content="写在前面  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。 正文：  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一">
@@ -364,6 +365,28 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JUC/" itemprop="url" rel="index">
+                    <span itemprop="name">JUC</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -410,6 +433,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ReentrantLock/" rel="tag"># ReentrantLock</a>
+          
+        </div>
       
 
       
@@ -509,12 +538,21 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
             
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
             
 
           </nav>
