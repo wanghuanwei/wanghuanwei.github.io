@@ -117,17 +117,19 @@
 
 
 
-<meta name="description" content="三次失败的阿里面试 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。 顿时恍">
+<meta name="description" content="写在前面  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。 正文：  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一">
 <meta property="og:type" content="article">
-<meta property="og:title" content="金三的三次失败面试">
-<meta property="og:url" content="http://yoursite.com/2019/05/04/金三的三次失败面试/index.html">
+<meta property="og:title" content="ReetrantLock浅析">
+<meta property="og:url" content="http://yoursite.com/2019/05/08/ReetrantLock浅析/index.html">
 <meta property="og:site_name" content="萧易的技术沉淀">
-<meta property="og:description" content="三次失败的阿里面试 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。 顿时恍">
+<meta property="og:description" content="写在前面  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。 正文：  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-05-04T10:11:24.768Z">
+<meta property="og:image" content="http://images/pasted-0.png/">
+<meta property="og:updated_time" content="2019-05-08T14:47:00.643Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="金三的三次失败面试">
-<meta name="twitter:description" content="三次失败的阿里面试 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。 顿时恍">
+<meta name="twitter:title" content="ReetrantLock浅析">
+<meta name="twitter:description" content="写在前面  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。 正文：  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一">
+<meta name="twitter:image" content="http://images/pasted-0.png/">
 
 
 
@@ -157,13 +159,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/05/04/金三的三次失败面试/">
+  <link rel="canonical" href="http://yoursite.com/2019/05/08/ReetrantLock浅析/">
 
 
 
 
 
-  <title>金三的三次失败面试 | 萧易的技术沉淀</title>
+  <title>ReetrantLock浅析 | 萧易的技术沉淀</title>
   
 
 
@@ -322,7 +324,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/04/金三的三次失败面试/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/08/ReetrantLock浅析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="萧易">
@@ -339,7 +341,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">金三的三次失败面试</h1>
+          <h1 class="post-title" itemprop="name headline">ReetrantLock浅析</h1>
         
 
         <div class="post-meta">
@@ -351,8 +353,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-04T17:46:04+08:00">
-                2019-05-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-08T22:02:57+08:00">
+                2019-05-08
               </time>
             
 
@@ -361,28 +363,6 @@
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/杂谈/" itemprop="url" rel="index">
-                    <span itemprop="name">杂谈</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -411,7 +391,11 @@
       
 
       
-        <p>三次失败的阿里面试<br> 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。<br> 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。<br> 顿时恍然，其实，三次失败的原因追根到底都是深度不够。<br> 比如蚂蚁三面的实话，主要就是在拿项目中的一个点在一点点的深挖。结果在很开始的时候就走错了方向，然后就一直错下去，直到问到一个可能误解的问题，然后结束！其实这个问题当时也看过相关的文章，就是简单的缓存一致性问题。但确实是沉淀，深度不够，没有理解更深层次的东西，就忽略了很多东西。<br> 而饿了么和新制造的二面都是直接挂掉的，也都是同样的深度不够。比如当时问的一个什么对象可以作为GC Roots，真的是一瞬间楞掉，卡了很久，面试官肯定也就觉得这个候选人不行了。其实多思考一下，肯定是在短暂时间内绝对不会被GC或者说正在使用的对象，都是可以作为GC Roots的，但楞了一下之后，虽然也是这个思路，竟然猜测的是Main Class。。。也是让人服气<br> 其实工作了这么多年，如果不是这次面试，可能也不会真的整理一下自己的知识库。优秀的人总是有一些共性，而失败的人，却有很多理由。、<br> 总的发现，多总结一下自己的知识库，总是能提高很多的。<br> 另外一个就是电面的时候，一定要把自己的思路先说出来，让面试官知道，这样即使答案可能有误，但至少过程还是对了一部分。就像上学时候，考数理化，即使答案错了，只要步骤对，总能拿到分，甚至有时还超出自己期望的分数</p>
+        <p>写在前面<br>  一直想写blog，但一直很懒。直到真的面临中年危机才发现很多时候，自己的沉淀真的很薄弱，所以下定决心开始沉淀自己。本来第一篇想写Spring相关的，但确实是内容太多。正好今天又莫名的看到ReentrantLock，写这个也好像不错。</p>
+<p>正文：<br>  在Java中，悲观锁通常的实现方式有两种：synchronized和ReentrantLock。而相对来说，Lock的方式更方便一些，可以指定一些参数，比如是否是公平锁（构造参数指定），等待时长等，所以先简单写一下ReentrantLock。<br>  说到ReetrantLock，就必须要说AQS（AbstractQueuedSynchronizer），它是ReentrantLock的实现基础。AQS通过一个声明为volatile的state和一个CLH队列来管理锁定的对象，此处就不展开写了。<br>  在new一个ReentrantLock时，可以指定锁是公平锁还是非公平锁。如图所示：</p>
+<p><img src="\\images\pasted-0.png\" alt="upload successful"><br>默认的就是一个非公平锁。所谓公平和非公平，就是看等待的线程在竞争锁时的动作。公平锁就是大家都待在队列中，依次来获取锁资源；非公平锁则是指等待队列中的线程每次都来抢占锁，而不是按照队列的顺序依次获取锁资源。当然这个是概念上的区别，但代码又是如何的不同呢，所以往下看。（不容易，铺垫这么多，终于到我想记录的了。。看来自己还是真的啰嗦）<br>  先讲公共的部分<br>  在使用锁时，如果是调用tryLock()方法时，其实都是调用的非公平的获取锁的方式，最终代码如下：<br>  <pre><code><br>  final boolean nonfairTryAcquire(int acquires) {<br>            final Thread current = Thread.currentThread();<br>            int c = getState();<br>            if (c == 0) {<br>            // 获取当前锁状态，如果为0，表示暂没人抢占，直接通过CAS来抢占锁，成功则返回true<br>                if (compareAndSetState(0, acquires)) {<br>                    setExclusiveOwnerThread(current);<br>                    return true;<br>                }<br>            }<br>            else if (current == getExclusiveOwnerThread()) {<br>            // 如果锁被抢占则判断是否是当前线程，如果是，则将state加上要申请的数量-acquires，并返回true<br>                int nextc = c + acquires;<br>                if (nextc &lt; 0)<br>                    throw new Error(“Maximum lock count exceeded”);<br>                setState(nextc);<br>                return true;<br>            }<br>            // 否则返回失败<br>            return false;<br>        }<br>   </code></pre><br>   其实上面的代码是看不出来公平不公平的，任何的线程来申请锁时，肯定都是这种步骤：如果没有被抢占，则尝试抢占，如果被占则判断是否是自身。这个也是可重入锁的根本原因。<br>   在真正调用tryLock(long timeout, TimeUnit unit) 这个方法时，公平和非公平才会体现出来。<br>   先来看默认的非公平锁。<br>   无论是Fair还是NonFair，在tryLock（timeout，unit）时，都是调用的AQS的tryAcquireNanos(arg，timeout)这个方法，代码如下：<br>   <pre><code><br>   public final boolean tryAcquireNanos(int arg, long nanosTimeout)<br>            throws InterruptedException {<br>        if (Thread.interrupted())<br>            throw new InterruptedException();<br>            // 此处的tryAcquire才会区分Fair和NonFair，其中arg默认为1<br>        return tryAcquire(arg) ||<br>            doAcquireNanos(arg, nanosTimeout);<br>    }<br>   </code></pre><br>   NonFair的tryAcquire实现，就是上面tryLock()的代码，在锁正好处于未锁定时，直接获取锁。<br>   再来看Fair的实现：<br>   <pre><code><br>   protected final boolean tryAcquire(int acquires) {<br>            final Thread current = Thread.currentThread();<br>            int c = getState();<br>            if (c == 0) {<br>            // 公平锁是在看到锁未被占用时，先判断是否有等待队列且队列非空，如果是才尝试获取锁，如果不是，则返回false进入后续处理流程<br>                if (!hasQueuedPredecessors() &amp;&amp;<br>                    compareAndSetState(0, acquires)) {<br>                    setExclusiveOwnerThread(current);<br>                    return true;<br>                }<br>            }<br>            else if (current == getExclusiveOwnerThread()) {<br>            // 以下和NonFair的处理一致<br>                int nextc = c + acquires;<br>                if (nextc &lt; 0)<br>                    throw new Error(“Maximum lock count exceeded”);<br>                setState(nextc);<br>                return true;<br>            }<br>            return false;<br>        }<br>   </code></pre></p>
+<p>  可以看到Fair和NonFair的差别主要就是体现在tryAcquire方法中，如果锁为被抢占时的处理方式不一样，Fair会主动入队，而NonFair则是直接抢占。这个也会影响入队后的处理。</p>
+<p>  预知后事如何，且听下回分解AQS中的队列循环</p>
 
       
     </div>
@@ -436,8 +420,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/22/first-blog/" rel="next" title="开篇">
-                <i class="fa fa-chevron-left"></i> 开篇
+              <a href="/2019/05/04/金三的三次失败面试/" rel="next" title="金三的三次失败面试">
+                <i class="fa fa-chevron-left"></i> 金三的三次失败面试
               </a>
             
           </div>
@@ -445,10 +429,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/08/ReetrantLock浅析/" rel="prev" title="ReetrantLock浅析">
-                ReetrantLock浅析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
