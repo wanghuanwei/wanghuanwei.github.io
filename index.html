@@ -319,6 +319,177 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/20/CyclicBarrier浅析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="萧易">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="萧易的技术沉淀">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/20/CyclicBarrier浅析/" itemprop="url">CyclicBarrier浅析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-20T21:34:04+08:00">
+                2019-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>  面试阿里时，严格算来也就三次电面，结果有两次问到了一个JUC的工具类：CyclicBarrier。可惜，在实际工作中，确实没有用到过这个类，更别说原理之类的了，虽然第一次问到的实话简单看了下，但第二次被问到的时候还是很懵逼。今天就来简单看下这个类。<br>  先看作用，CyclicBarrier类主要是用来做并发控制，但作用感觉像是和CountDownLatch正好反过来一样。CountDownLatch是可以使主线程处在一个等待状态，直到子线程任务完成。而CyclicBarrier则是控制子线程在同一个时刻执行。来看个例子如图：<br>  <img src="/2019/05/20/CyclicBarrier浅析/CyclicBarrier示例.png" alt="执行示例"><br>  从上面的例子可以看到，五个线程Sleep了完全不同的五个时间，但最后开始执行的时间却是一样的，这也是CyclicBarrier的主要功能，可以控制子线程在同一个时刻执行，而不用关心子线程具体在什么时候才拿到执行资源。<br>  一样的，来看下原理。<br>  CyclicBarrier通过ReentrantLock和Condition来实现并发的控制，在new一个CyclicBarrier实例时，需要指定数量，具体看构造方法：<br>  <pre><code>public CyclicBarrier(int parties, Runnable barrierAction) {<br>    if (parties &lt;= 0) throw new IllegalArgumentException();<br>    // barrier的具体数量，也即是要执行的总的线程（或者任务）数量<br>    this.parties = parties;<br>    // 等待的数量<br>    this.count = parties;<br>    // command，实现了Runnable的一个类，会在所有线程到达后，由最后到达的线程触发一次执行，调用run方法<br>    this.barrierCommand = barrierAction;<br>}</code></pre><br>  看了构造方法后，再来看具体的执行方法dowait，这个方法中实现了真正的等待，await和await(long, TimeUinit)都是调用的dowait方法：<br>  <pre><code>final ReentrantLock lock = this.lock;<br>// 先获取锁，这样的话，就保证只会有一个子线程来执行command<br>lock.lock();<br>try {<br>    final Generation g = generation;<br>    if (g.broken)<br>        // 每次执行前都判断是否已经中断，中断则抛出异常<br>        throw new BrokenBarrierException();<br>    if (Thread.interrupted()) {<br>        breakBarrier();<br>        throw new InterruptedException();<br>    }</code></pre></p>
+<pre><code>int index = --count;
+if (index == 0) {  
+    // 等待线程数量已经为0，也即是其他线程已经进度等待队列，则执行command，执行成功后，唤醒所有等待线程，重置count，generation
+    boolean ranAction = false;
+    try {
+        final Runnable command = barrierCommand;
+        if (command != null)
+            command.run();
+        ranAction = true;
+        nextGeneration();
+        return 0;
+    } finally {
+        if (!ranAction)
+            // 如果执行失败，同样唤醒所有线程
+            breakBarrier();
+    }
+}
+
+// loop until tripped, broken, interrupted, or timed out
+for (;;) {
+    try {
+        if (!timed)
+            // 在循环中进行等待，调用AQS的await方法，此方法中会将当前线程入队，如果不是队尾时，则返回
+            trip.await();
+        else if (nanos &gt; 0L)
+            nanos = trip.awaitNanos(nanos);
+    } catch (InterruptedException ie) {
+        if (g == generation &amp;&amp; ! g.broken) {
+            breakBarrier();
+            throw ie;
+        } else {
+            // We&apos;re about to finish waiting even if we had not
+            // been interrupted, so this interrupt is deemed to
+            // &quot;belong&quot; to subsequent execution.
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    if (g.broken)
+        throw new BrokenBarrierException();
+
+    if (g != generation)
+        return index;
+
+    if (timed &amp;&amp; nanos &lt;= 0L) {
+        breakBarrier();
+        throw new TimeoutException();
+    }
+}
+</code></pre><p>} finally {<br>    // 在进行其他判断后，如果barrier还是处于正常状态，则将当前线程持有的锁释放，其他线程将依次获取锁并进入等待队列<br>    lock.unlock();<br>}</p>
+<p>  核心的await方法，一样还是依赖AQS，而只看CyclicBarrier的话，在依次将子线程放入等待队列后，就会立马释放锁，然后等最后一个执行dowait的方法，将所有等待线程唤醒。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/18/Semaphore解析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1246,7 +1417,7 @@ Sync(int count) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
