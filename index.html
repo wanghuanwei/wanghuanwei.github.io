@@ -413,7 +413,7 @@ if (index == 0) {
 for (;;) {
     try {
         if (!timed)
-            // 在循环中进行等待，调用AQS的await方法，此方法中会将当前线程入队，如果不是队尾时，则返回
+            // 在循环中进行等待，调用AQS的await方法，此方法中会将当前线程入队，然后检查node是否在队列中，在则返回，也即保证所有子线程（最后一个除外）会进入等待队列
             trip.await();
         else if (nanos &gt; 0L)
             nanos = trip.awaitNanos(nanos);
@@ -441,7 +441,7 @@ for (;;) {
     }
 }
 </code></pre><p>} finally {<br>    // 在进行其他判断后，如果barrier还是处于正常状态，则将当前线程持有的锁释放，其他线程将依次获取锁并进入等待队列<br>    lock.unlock();<br>}</p>
-<p>  核心的await方法，一样还是依赖AQS，而只看CyclicBarrier的话，在依次将子线程放入等待队列后，就会立马释放锁，然后等最后一个执行dowait的方法，将所有等待线程唤醒。</p>
+<p>  核心的await方法，一样还是依赖AQS，而只看CyclicBarrier的话，在依次将子线程放入等待队列后，就会立马释放锁，然后等最后一个执行dowait的方法，将所有等待线程唤醒。<br>  而对于AQS的依赖，主要是ConditionObject，这个是AQS提供的一个相对比较独立的功能，也提供了入队，唤醒等方法。</p>
 
           
         
