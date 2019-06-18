@@ -319,6 +319,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/02/RabbitMQ和Kafaka/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="萧易">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="萧易的技术沉淀">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/02/RabbitMQ和Kafaka/" itemprop="url">RabbitMQ和Kafaka</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-02T09:40:00+08:00">
+                2019-06-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MQ/" itemprop="url" rel="index">
+                    <span itemprop="name">MQ</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h4><p>  面试的时候，被问到技术选型是非常常见的一个问题了，但真的被问到的时候，怎么回答却是各种选择。<br>  我被问到过一次为什么选择RabbitMQ，而不选kafka或者rocketMQ。说实话，真的涉及到技术选型的时候，我更多的时候考虑的确实是学习成本。如果所有人都要花时间去学习新的MQ或者其他组件，那这个选型我觉得是失败的，即使每个人也许都学到了新的组件使用方式，但给项目带来的不确定性是一个大大的雷。<br>  可惜，如果面试的时候你这么回答，怕是哪个面试官都要给你打个大大的×。<br>  所以也来总结一下比较常用的RabbitMQ和Kafka这两个MQ</p>
+<h4 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h4><p>  先说RabbitMQ，这个是我们项目中非常常用的MQ了。特别是转到金融部门后，作为可靠性很高的MQ，RabbitMQ被选中的频率就更高了。<br>  RabbitMQ是Erlang语言实现的一个基于AMQP协议的MQ组件。如下图所以：<br>  <img src="/2019/06/02/RabbitMQ和Kafaka/AMQP.png" alt="AMQP协议"><br>  由图可见，AMQP协议相比较于简单的队列，多了一个Exchange来做消息的中转；Producer也不会直接将消息投递到队列中，而是投递给exchange。同样的，AMQP规定了使用binding来绑定exchange和queue的关系。当消息到达Exchange之后，将消息路由给队列（如果找不到对应的绑定队列，则不路由）。<br>  AMQP提供了四种Exchange的类型</p>
+<ol>
+<li>Direct Exchange：根据route key进行匹配，将消息路由到binding key匹配route key的队列，也即是说route key和binding key必须严格匹配</li>
+<li>Fanout Exchange：将消息发送给所有绑到该exchange的队列中，而不关心具体的route key</li>
+<li>Topic Exchange：支持模糊匹配的直连exchange，通过*（单个字符）、#（不限个数）等通配符来模糊匹配，更加方便的来进行消息转发</li>
+<li><p>Headers Exchange：不依赖route key和binding key来进行匹配，而是根据消息中的headers属性来进行匹配</p>
+<p>而Kafka不一样，它并没有完整的按照AMQP的协议来实现，而是仿照AMQP，来实现了一套消息的收发机制。Kafka都是topic的方式，producer发送消息时，直接发送到topic，而每个topic会有多个partition，所以实际上，在发送消息时，会直接load balance到topic下面具体的partition中。每个partition中的消息都是有序的，但因为一个topic可以有多个partition，所以总体来说消息也是无序的。对于consumer来说，kafka引入了consumer group的概念，多个consumer可以组成一个组，同一个partition中的消息，只能被同一个consumer group中的一个consumer消费。</p>
+<h4 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h4><p>在持久化方面，RabbitMQ和Kafka都是支持的。<br>对于RabbitMQ，持久化分为Exchange、queue和消息三种。</p>
+</li>
+<li><p>Exchange的持久化，是防止在broker（RabbitMQ Server实例）重启之后，exchange丢失的情况，如果不设置exchange的持久化，服务器重启后，exchange则不会自动复原，producer的消息发送也将受到影响。</p>
+</li>
+<li>Queue的持久化的作用同exchange是类似的，在声明队列时，将durable设为true即可。</li>
+<li><p>消息的持久化，在发送消息时，可以选择将消息持久化，这样消息才会持久化到磁盘。通过MessageProperties.PERSISTENT_TEXT_PLAIN的方式来持久化消息。</p>
+<p>如上可以看到，对于RabbitMQ来说，exchange、queue、消息三个核心都是可以选择持久化的，可靠性上就有很大的保障。而消息的持久化会有一定的延迟，RabbitMQ是每满1M或者隔25ms写一次盘,这也就意味着producer发送消息成功后，会有一定的丢消息的概率，当然这些是可配置的。</p>
+<p>而对于Kafka来说，partition天然的支持持久化。为了提高持久化的效率，kafka记录的消息不做删除操作，只有顺序写，保证写盘时是顺序的，这样磁盘的IO效率提高很多。</p>
+</li>
+<li><p>每个partition都是append log，而保存的log默认保存7天，也支持配置。而为了避免日志爆盘，kafka提供了根据日志条数或者时间来删除日志，或者根据相同key对日志进行压缩的策略以供选择。</p>
+</li>
+<li>每条消息在落盘时，会分配一个offset，消费时，会依据此值来避免重复消费</li>
+<li>producer在生产消息时，先把消息发送到partition的leader，然后由leader往slave节点同步；所以如果leader中的消息还没有来得及同步然后down掉，新选的leader是没有对应消息的，也即是消息丢失。</li>
+</ol>
+<h4 id="ACK机制"><a href="#ACK机制" class="headerlink" title="ACK机制"></a>ACK机制</h4><p>  而为了保证在生产和消费时的消息不丢失，RabbitMQ和Kafka都提供了ACK机制（kafka的consumer是根据offset来保证不丢消息）。<br>  先看RabbitMQ，RabbitMQ提供了两种方式来保证生产者的消息发送到broker：事务和发送确认</p>
+<ol>
+<li>事务。RabbitMQ的事务是基于AMQP协议来实现的。通过ConnectionFactory的Channel来完成具体的实现：channel.txSelect,channel.txCommit,channel.txRollback。在发送消息前，通过txSelect开启事务，然后通过basicPublish发送消息，txCommit提交事务，在发生异常时，可以通过txRollback回滚事务。在使用事务时，很明显的可以看到由于和rabbitmq多次进行交互，所以性能也会受到很大影响。</li>
+<li><p>发送确认。这种方式相对来说要轻量级很多,也是通过Channel来实现。具体的确认方式有三种方式：<br>  2.1 channel.waitForConfirms 先通过confirmSelect打开发送确认，发送消息后，通过调用该方法可以阻塞式等待broker发送的确认消息。消息发送成功会返回true，反之返回false。可以设置等待超时时间，超时后会抛出Timeout异常<br>  2.2 channel.waitForConfirmsOrDie()批量确认消息发送结果。如果有发送失败的消息则会抛出异常。同样可以设置等待超时时间。<br>  2.3 ConfirmListener 通过实现该接口，来<strong>异步实现消息的结果确认</strong>;很明显，异步的意思就是生产者发送消息后就可以结束了，当有消息回调时，会根据消息的结果（ACK或NACK）来调用不同的方法，以完成不同的处理。</p>
+<p>RabbitMQ的consumer通过ACK来确保消费者不会丢消息，或者消息处理失败时保证其他消费者会再次被消费。但默认情况下，Spring RabbitMQ的ack是自动ack，也就是说在有消费者获取一条消息后，就会认为消息被消费成功。所以一般会将autoAck设置为false，通过自己控制ack消息的发送时间点来保证消息被消费成功。当消息消费成功后，RabbitMQ会将消息删除<br>Kafka的ACK严格来说就只有producer支持。在发送消息时，kafka以供提供了三种方式来供选择</p>
+<ul>
+<li>发送完成即成功，也即是说不管下次是否持久化</li>
+<li>master-slave模式，也即是消息需要partition的leader和slave都持久化成功，才算消息发送成功</li>
+<li>master模式，也即是master的partition持久化成功即算发送成功。<br>通过设置request.required.acks来选择不同的模式；设置为0时也即是不关心具体投递结果；acks=1时需要master持久化后返回成功；acks=2时表示需要master和一个slave持久化成功；acks=-1表示需要master和所有的slave都持久化成功才算投递成功。<br>对于consumer来说，需要维护一个offset在zk中，来保存当前consumer消费的index，下次消费时，将拉取offset大于zk中的offset的消息。通过这种方式来保证consumer拿到的消息一定是消费成功的，消费不成功时，可以不更新zk中的offset。</li>
+</ul>
+</li>
+</ol>
+<h4 id="扩展性"><a href="#扩展性" class="headerlink" title="扩展性"></a>扩展性</h4><p>  其实看AMQP的消息分发就可以看到，RabbitMQ对于扩展性的支持是不够强的。即使是Master-slave的模式，消息也是只往同一个master的broker上发送，新加的节点也并不能起到很好的分流的作用。而Kafka不一样，每个topic都有自己的masterpartition，而整个集群没有严格意义上的master broker。通过将master的分散，来实现分流，降低单节点的压力。<br>  除此之外，RabbitMQ支持死信队列和延迟队列，也即是当消息消费失败或者超时后，可以将消息发送到配置好的死信队列中。依据此特性，可以使用RabbitMQ来实现一个分布式延迟队列的功能。同时RabbitMQ支持消息的优先级。这些Kafka都是不支持的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/29/线程池那些事-二/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1688,129 +1864,13 @@ Sync(int count) {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/22/first-blog/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="萧易">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="萧易的技术沉淀">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/22/first-blog/" itemprop="url">开篇</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-22T22:20:17+08:00">
-                2019-04-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p> 这个是个新的尝试，希望自己能坚持，也希望自己在以后的技术路上，可以成长到一个让自己满意的高度</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -1856,7 +1916,7 @@ Sync(int count) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1867,7 +1927,7 @@ Sync(int count) {
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
