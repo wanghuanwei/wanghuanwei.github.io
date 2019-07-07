@@ -319,6 +319,247 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/26/Redis源码解析（一）-字典/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="萧易">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="萧易的技术沉淀">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/26/Redis源码解析（一）-字典/" itemprop="url">Redis源码解析（一）:字典</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-26T21:46:00+08:00">
+                2019-06-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>title: ‘Redis源码解析（一）:字典’<br>date: 2019-06-26 21:46:01</p>
+<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><h4 id="前面说的"><a href="#前面说的" class="headerlink" title="前面说的"></a>前面说的</h4><p>作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。<br>Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。</p>
+<h4 id="字典简介"><a href="#字典简介" class="headerlink" title="字典简介"></a>字典简介</h4><p>字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本上所有的Redis支持的对象都依赖了字典这一数据结构。<br>说到这，不得不先插播一条额外的东西，Redis中支持5中对象类型，分别是：字符串、列表、哈希、集合、有序集合。而每种对象会有不同的底层数据结构，对应redis命令的话，就是type和encoding。其中对象和数据结构的对应关系如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对象</th>
+<th style="text-align:center">数据结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">字符串</td>
+<td style="text-align:center">简单动态字符串（SDS）</td>
+</tr>
+<tr>
+<td style="text-align:center">字符串</td>
+<td style="text-align:center">整数</td>
+</tr>
+<tr>
+<td style="text-align:center">字符串</td>
+<td style="text-align:center">使用embstr编码的动态字符串</td>
+</tr>
+<tr>
+<td style="text-align:center">列表</td>
+<td style="text-align:center">压缩列表（ZipList）</td>
+</tr>
+<tr>
+<td style="text-align:center">列表</td>
+<td style="text-align:center">双向链表（LinkedList）</td>
+</tr>
+<tr>
+<td style="text-align:center">Hash</td>
+<td style="text-align:center">压缩列表</td>
+</tr>
+<tr>
+<td style="text-align:center">Hash</td>
+<td style="text-align:center">字典</td>
+</tr>
+<tr>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">整数集合</td>
+</tr>
+<tr>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">字典</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:center">压缩列表</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:center">跳跃表</td>
+</tr>
+</tbody>
+</table>
+<p>而对于字典来说，除了上面说的外，在Redis中还承担了很多其他的存储底层数据结构，之后可以慢慢说。</p>
+<h4 id="字典的组成"><a href="#字典的组成" class="headerlink" title="字典的组成"></a>字典的组成</h4><p>先通过源码来更直接的感受一下字典的struct定义</p>
+<pre><code>
+// 单个节点结构定义
+typedef struct dictEntry {
+    void *key;  // key，也即是set k v的key
+    union {
+        void *val;
+        uint64_t u64;
+        int64_t s64;
+        double d;
+    } v;  // entry的值
+    struct dictEntry *next; // 解决hash冲突，指向下一个entry
+} dictEntry;
+typedef struct dictht {
+    dictEntry **table;  // 每个hash table中真正存放数据的table，二维数组
+    unsigned long size;  // 当前ht的大小，也即总容量，一定是2的n
+    unsigned long sizemask; // 永远为size-1的值，便于计算key在哪个table[]中
+    unsigned long used;  // 已经使用的数量，也即是当前ht的key数量
+} dictht;
+
+// 定义字典
+typedef struct dict {
+    dictType *type; //字典的类型
+    void *privdata; // 私有数据，和type相关联，用于实现不同字典的多态而设置
+    dictht ht[2]; // 每个字典都有两个hash table，真正存储数据的实际字典，而正常情况下，只有ht[0]才会存储数据，ht[1]是在渐进式Rehash时用到的
+    long rehashidx;  // 当前rehash对应的index，-1表示当前字典没有rehash
+    unsigned long iterators; // 当前正在运行的迭代器数量
+} dict;</code></pre>
+
+<p>从dict的定义可以看到，其实类似于Java中的HashMap，只是这个Map是支持分布式的，而且在扩容缩容时，也要复杂一些。</p>
+<ol>
+<li><h5 id="字典的创建和插入"><a href="#字典的创建和插入" class="headerlink" title="字典的创建和插入"></a>字典的创建和插入</h5>字典在插入第一条数据时，其对应的字典都是已经创建好了的，也就是说他们的内存已经申请，对应的数据初始化也都已经完成了。在插入时，和HashMap的插入类似，根据key的hash值和字典的sizemask求与，得到一个index，也即是ht[0]所对应的table[index]；类比到HashMap，也就是找到对应的node（1.8版本），然后将对应的key value生成的entry放入对应的table中。此处和HashMap不一致的地方是，新加入的节点是放在链表的头部的，和HashMap不同（HashMap放在尾部），猜测此处也是为了快速完成数据的插入而设定的。不过观其源码，其实Redis在插入新的&lt;k,v&gt;时，也是检查了k是否已存在的，只是检查的时候，是放在一个独立的方法来做的，而该方法返回值是k应该存放的index值，所以在实际存放entry时，为了避免浪费时间，就把新的entry放到了头部。</li>
+<li><h5 id="字典的更新"><a href="#字典的更新" class="headerlink" title="字典的更新"></a>字典的更新</h5>数据更新时，dict提供的一个api是dictReplace，先默认key不存在是新加操作，返回失败后，直接更新对应key的值，就完成了操作。</li>
+<li><h5 id="字典的扩容"><a href="#字典的扩容" class="headerlink" title="字典的扩容"></a>字典的扩容</h5><p>当字典的容量达到一定比例时，将启动扩容。但好奇的一点时，Redis在判断是否需要对字典进行扩容时，负载因子竟然是0.1，低的让人不可相信，具体代码如下：<br><pre><code><br>int htNeedsResize(dict *dict) {<br>//判断是否需要对字典进行resize<br> long long size, used;</code></pre></p>
+<p> size = dictSlots(dict);// 字典总的大小<br> used = dictSize(dict); // 已经使用的大小<br> return (size &gt; DICT_HT_INITIAL_SIZE &amp;&amp; (used*100/size &lt; HASHTABLE_MIN_FILL)); //需要resize时，当前size已经是大于默认值4的当前负载因子小于默认最小的负载因子10，因为乘了100，也就是说0.1<br>}<br>void tryResizeHashTables(int dbid) {<br>// 判断redis对应db中的字典和存放带过期时间的key的字典是否需要resize<br> if (htNeedsResize(server.db[dbid].dict))<br>   dictResize(server.db[dbid].dict);<br> if (htNeedsResize(server.db[dbid].expires))<br>   dictResize(server.db[dbid].expires);<br>}<br><br>在resize时，新的size必须大于已使用used的大小，同时是最小2的幂的值。只有size是2的幂时，sizemask才有意义！！</p>
+</li>
+<li><h5 id="渐进式Rehash"><a href="#渐进式Rehash" class="headerlink" title="渐进式Rehash"></a>渐进式Rehash</h5>在实际使用过程中，字典的扩容是伴随着rehash的，因为字典的size变了，同样的hash值，在计算index时，得到的值是不一样的，所以，在扩容时，新的size也是放到ht[1]中，而不是修改正在使用的ht[0]。</li>
+</ol>
+<p>在rehash过程中，新加入的key，会放到ht[1]的table中，同时会有后台任务（100ms执行一次）来执行rehash的操作，每次耗时1ms，将ht[0]中的key，逐步迁移到ht[1]中。每次都是按照table[rehashidx]的值来逐步处理。除了定时任务外，每次Redis在处理操作命令时，也会进行一次耗时1ms的rehash操作。</p>
+<p>当ht[0]中的数据全部迁移到ht[1]后，就会将ht[0]=ht[1]，同时将ht[1]释放其内存空间。</p>
+<p>在渐进式rehash过程中，读取的操作会分为两部分，先查询ht[0]，没有的话，再获取ht[1]</p>
+<p>而至于rehash的图，其实网上很多，特别是《Redis设计与实现》中，画的很完美，就不拷贝了。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/02/RabbitMQ和Kafaka/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1722,148 +1963,6 @@ Sync(int count) {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/04/金三的三次失败面试/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="萧易">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="萧易的技术沉淀">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/04/金三的三次失败面试/" itemprop="url">金三的三次失败面试</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-04T17:46:04+08:00">
-                2019-05-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/杂谈/" itemprop="url" rel="index">
-                    <span itemprop="name">杂谈</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>三次失败的阿里面试<br> 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。<br> 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。<br> 顿时恍然，其实，三次失败的原因追根到底都是深度不够。<br> 比如蚂蚁三面的实话，主要就是在拿项目中的一个点在一点点的深挖。结果在很开始的时候就走错了方向，然后就一直错下去，直到问到一个可能误解的问题，然后结束！其实这个问题当时也看过相关的文章，就是简单的缓存一致性问题。但确实是沉淀，深度不够，没有理解更深层次的东西，就忽略了很多东西。<br> 而饿了么和新制造的二面都是直接挂掉的，也都是同样的深度不够。比如当时问的一个什么对象可以作为GC Roots，真的是一瞬间楞掉，卡了很久，面试官肯定也就觉得这个候选人不行了。其实多思考一下，肯定是在短暂时间内绝对不会被GC或者说正在使用的对象，都是可以作为GC Roots的，但楞了一下之后，虽然也是这个思路，竟然猜测的是Main Class。。。也是让人服气<br> 其实工作了这么多年，如果不是这次面试，可能也不会真的整理一下自己的知识库。优秀的人总是有一些共性，而失败的人，却有很多理由。、<br> 总的发现，多总结一下自己的知识库，总是能提高很多的。<br> 另外一个就是电面的时候，一定要把自己的思路先说出来，让面试官知道，这样即使答案可能有误，但至少过程还是对了一部分。就像上学时候，考数理化，即使答案错了，只要步骤对，总能拿到分，甚至有时还超出自己期望的分数</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1916,7 +2015,7 @@ Sync(int count) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1927,7 +2026,7 @@ Sync(int count) {
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

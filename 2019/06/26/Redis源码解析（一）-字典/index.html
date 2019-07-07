@@ -117,17 +117,17 @@
 
 
 
-<meta name="description" content="一个仍需奋斗的老菜鸟">
-<meta property="og:type" content="website">
-<meta property="og:title" content="关于我">
-<meta property="og:url" content="http://yoursite.com/about/index.html">
+<meta name="description" content="title: ‘Redis源码解析（一）:字典’date: 2019-06-26 21:46:01 tags:前面说的作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。 字典简介字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis源码解析（一）:字典">
+<meta property="og:url" content="http://yoursite.com/2019/06/26/Redis源码解析（一）-字典/index.html">
 <meta property="og:site_name" content="萧易的技术沉淀">
-<meta property="og:description" content="一个仍需奋斗的老菜鸟">
+<meta property="og:description" content="title: ‘Redis源码解析（一）:字典’date: 2019-06-26 21:46:01 tags:前面说的作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。 字典简介字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-05-03T15:14:26.410Z">
+<meta property="og:updated_time" content="2019-07-07T14:23:37.488Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="关于我">
-<meta name="twitter:description" content="一个仍需奋斗的老菜鸟">
+<meta name="twitter:title" content="Redis源码解析（一）:字典">
+<meta name="twitter:description" content="title: ‘Redis源码解析（一）:字典’date: 2019-06-26 21:46:01 tags:前面说的作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。 字典简介字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本">
 
 
 
@@ -157,13 +157,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/about/">
+  <link rel="canonical" href="http://yoursite.com/2019/06/26/Redis源码解析（一）-字典/">
 
 
 
 
 
-  <title>关于我 | 萧易的技术沉淀</title>
+  <title>Redis源码解析（一）:字典 | 萧易的技术沉淀</title>
   
 
 
@@ -310,34 +310,259 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/26/Redis源码解析（一）-字典/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="萧易">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="萧易的技术沉淀">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">关于我</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <p>一个仍需奋斗的老菜鸟</p>
-
+          <h1 class="post-title" itemprop="name headline">Redis源码解析（一）:字典</h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-26T21:46:00+08:00">
+                2019-06-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <p>title: ‘Redis源码解析（一）:字典’<br>date: 2019-06-26 21:46:01</p>
+<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><h4 id="前面说的"><a href="#前面说的" class="headerlink" title="前面说的"></a>前面说的</h4><p>作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。<br>Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。</p>
+<h4 id="字典简介"><a href="#字典简介" class="headerlink" title="字典简介"></a>字典简介</h4><p>字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本上所有的Redis支持的对象都依赖了字典这一数据结构。<br>说到这，不得不先插播一条额外的东西，Redis中支持5中对象类型，分别是：字符串、列表、哈希、集合、有序集合。而每种对象会有不同的底层数据结构，对应redis命令的话，就是type和encoding。其中对象和数据结构的对应关系如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对象</th>
+<th style="text-align:center">数据结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">字符串</td>
+<td style="text-align:center">简单动态字符串（SDS）</td>
+</tr>
+<tr>
+<td style="text-align:center">字符串</td>
+<td style="text-align:center">整数</td>
+</tr>
+<tr>
+<td style="text-align:center">字符串</td>
+<td style="text-align:center">使用embstr编码的动态字符串</td>
+</tr>
+<tr>
+<td style="text-align:center">列表</td>
+<td style="text-align:center">压缩列表（ZipList）</td>
+</tr>
+<tr>
+<td style="text-align:center">列表</td>
+<td style="text-align:center">双向链表（LinkedList）</td>
+</tr>
+<tr>
+<td style="text-align:center">Hash</td>
+<td style="text-align:center">压缩列表</td>
+</tr>
+<tr>
+<td style="text-align:center">Hash</td>
+<td style="text-align:center">字典</td>
+</tr>
+<tr>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">整数集合</td>
+</tr>
+<tr>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">字典</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:center">压缩列表</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:center">跳跃表</td>
+</tr>
+</tbody>
+</table>
+<p>而对于字典来说，除了上面说的外，在Redis中还承担了很多其他的存储底层数据结构，之后可以慢慢说。</p>
+<h4 id="字典的组成"><a href="#字典的组成" class="headerlink" title="字典的组成"></a>字典的组成</h4><p>先通过源码来更直接的感受一下字典的struct定义</p>
+<pre><code>
+// 单个节点结构定义
+typedef struct dictEntry {
+    void *key;  // key，也即是set k v的key
+    union {
+        void *val;
+        uint64_t u64;
+        int64_t s64;
+        double d;
+    } v;  // entry的值
+    struct dictEntry *next; // 解决hash冲突，指向下一个entry
+} dictEntry;
+typedef struct dictht {
+    dictEntry **table;  // 每个hash table中真正存放数据的table，二维数组
+    unsigned long size;  // 当前ht的大小，也即总容量，一定是2的n
+    unsigned long sizemask; // 永远为size-1的值，便于计算key在哪个table[]中
+    unsigned long used;  // 已经使用的数量，也即是当前ht的key数量
+} dictht;
+
+// 定义字典
+typedef struct dict {
+    dictType *type; //字典的类型
+    void *privdata; // 私有数据，和type相关联，用于实现不同字典的多态而设置
+    dictht ht[2]; // 每个字典都有两个hash table，真正存储数据的实际字典，而正常情况下，只有ht[0]才会存储数据，ht[1]是在渐进式Rehash时用到的
+    long rehashidx;  // 当前rehash对应的index，-1表示当前字典没有rehash
+    unsigned long iterators; // 当前正在运行的迭代器数量
+} dict;</code></pre>
+
+<p>从dict的定义可以看到，其实类似于Java中的HashMap，只是这个Map是支持分布式的，而且在扩容缩容时，也要复杂一些。</p>
+<ol>
+<li><h5 id="字典的创建和插入"><a href="#字典的创建和插入" class="headerlink" title="字典的创建和插入"></a>字典的创建和插入</h5>字典在插入第一条数据时，其对应的字典都是已经创建好了的，也就是说他们的内存已经申请，对应的数据初始化也都已经完成了。在插入时，和HashMap的插入类似，根据key的hash值和字典的sizemask求与，得到一个index，也即是ht[0]所对应的table[index]；类比到HashMap，也就是找到对应的node（1.8版本），然后将对应的key value生成的entry放入对应的table中。此处和HashMap不一致的地方是，新加入的节点是放在链表的头部的，和HashMap不同（HashMap放在尾部），猜测此处也是为了快速完成数据的插入而设定的。不过观其源码，其实Redis在插入新的&lt;k,v&gt;时，也是检查了k是否已存在的，只是检查的时候，是放在一个独立的方法来做的，而该方法返回值是k应该存放的index值，所以在实际存放entry时，为了避免浪费时间，就把新的entry放到了头部。</li>
+<li><h5 id="字典的更新"><a href="#字典的更新" class="headerlink" title="字典的更新"></a>字典的更新</h5>数据更新时，dict提供的一个api是dictReplace，先默认key不存在是新加操作，返回失败后，直接更新对应key的值，就完成了操作。</li>
+<li><h5 id="字典的扩容"><a href="#字典的扩容" class="headerlink" title="字典的扩容"></a>字典的扩容</h5><p>当字典的容量达到一定比例时，将启动扩容。但好奇的一点时，Redis在判断是否需要对字典进行扩容时，负载因子竟然是0.1，低的让人不可相信，具体代码如下：<br><pre><code><br>int htNeedsResize(dict *dict) {<br>//判断是否需要对字典进行resize<br> long long size, used;</code></pre></p>
+<p> size = dictSlots(dict);// 字典总的大小<br> used = dictSize(dict); // 已经使用的大小<br> return (size &gt; DICT_HT_INITIAL_SIZE &amp;&amp; (used*100/size &lt; HASHTABLE_MIN_FILL)); //需要resize时，当前size已经是大于默认值4的当前负载因子小于默认最小的负载因子10，因为乘了100，也就是说0.1<br>}<br>void tryResizeHashTables(int dbid) {<br>// 判断redis对应db中的字典和存放带过期时间的key的字典是否需要resize<br> if (htNeedsResize(server.db[dbid].dict))<br>   dictResize(server.db[dbid].dict);<br> if (htNeedsResize(server.db[dbid].expires))<br>   dictResize(server.db[dbid].expires);<br>}<br><br>在resize时，新的size必须大于已使用used的大小，同时是最小2的幂的值。只有size是2的幂时，sizemask才有意义！！</p>
+</li>
+<li><h5 id="渐进式Rehash"><a href="#渐进式Rehash" class="headerlink" title="渐进式Rehash"></a>渐进式Rehash</h5>在实际使用过程中，字典的扩容是伴随着rehash的，因为字典的size变了，同样的hash值，在计算index时，得到的值是不一样的，所以，在扩容时，新的size也是放到ht[1]中，而不是修改正在使用的ht[0]。</li>
+</ol>
+<p>在rehash过程中，新加入的key，会放到ht[1]的table中，同时会有后台任务（100ms执行一次）来执行rehash的操作，每次耗时1ms，将ht[0]中的key，逐步迁移到ht[1]中。每次都是按照table[rehashidx]的值来逐步处理。除了定时任务外，每次Redis在处理操作命令时，也会进行一次耗时1ms的rehash操作。</p>
+<p>当ht[0]中的数据全部迁移到ht[1]后，就会将ht[0]=ht[1]，同时将ht[1]释放其内存空间。</p>
+<p>在渐进式rehash过程中，读取的操作会分为两部分，先查询ht[0]，没有的话，再获取ht[1]</p>
+<p>而至于rehash的图，其实网上很多，特别是《Redis设计与实现》中，画的很完美，就不拷贝了。</p>
+
       
     </div>
     
     
     
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/02/RabbitMQ和Kafaka/" rel="next" title="RabbitMQ和Kafaka">
+                <i class="fa fa-chevron-left"></i> RabbitMQ和Kafaka
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -370,8 +595,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -433,6 +667,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tags"><span class="nav-number">1.</span> <span class="nav-text">tags:</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#前面说的"><span class="nav-number">1.0.1.</span> <span class="nav-text">前面说的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#字典简介"><span class="nav-number">1.0.2.</span> <span class="nav-text">字典简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#字典的组成"><span class="nav-number">1.0.3.</span> <span class="nav-text">字典的组成</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#字典的创建和插入"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">字典的创建和插入</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字典的更新"><span class="nav-number">1.0.3.2.</span> <span class="nav-text">字典的更新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字典的扩容"><span class="nav-number">1.0.3.3.</span> <span class="nav-text">字典的扩容</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#渐进式Rehash"><span class="nav-number">1.0.3.4.</span> <span class="nav-text">渐进式Rehash</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
