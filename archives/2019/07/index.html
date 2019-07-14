@@ -117,20 +117,13 @@
 
 
 
-<meta name="description" content="之前讲了一下AQS的独占锁，包括公平锁和非公平锁，这次来看看共享锁的内容。  在JUC中，实现共享锁的有两个类：CountDownLatch和Semaphore。今天先来看下比较常用的CountDownLatch。记得第一次用的时候，还是在导师来告诉我可以用这么一个工具类来做一个并发的控制。  CountDownLatch的作用就是等待子线程的执行完成，然后主线程再继续执行。语言总是苍白的，直接上">
-<meta property="og:type" content="article">
-<meta property="og:title" content="CountDownLatch解析">
-<meta property="og:url" content="http://yoursite.com/2019/05/18/CountDownLatch解析/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="萧易的技术沉淀">
+<meta property="og:url" content="http://yoursite.com/archives/2019/07/index.html">
 <meta property="og:site_name" content="萧易的技术沉淀">
-<meta property="og:description" content="之前讲了一下AQS的独占锁，包括公平锁和非公平锁，这次来看看共享锁的内容。  在JUC中，实现共享锁的有两个类：CountDownLatch和Semaphore。今天先来看下比较常用的CountDownLatch。记得第一次用的时候，还是在导师来告诉我可以用这么一个工具类来做一个并发的控制。  CountDownLatch的作用就是等待子线程的执行完成，然后主线程再继续执行。语言总是苍白的，直接上">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/05/18/CountDownLatch解析/pasted-1.png">
-<meta property="og:image" content="http://yoursite.com/2019/05/18/CountDownLatch解析/pasted-2.png">
-<meta property="og:updated_time" content="2019-05-18T13:25:08.324Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CountDownLatch解析">
-<meta name="twitter:description" content="之前讲了一下AQS的独占锁，包括公平锁和非公平锁，这次来看看共享锁的内容。  在JUC中，实现共享锁的有两个类：CountDownLatch和Semaphore。今天先来看下比较常用的CountDownLatch。记得第一次用的时候，还是在导师来告诉我可以用这么一个工具类来做一个并发的控制。  CountDownLatch的作用就是等待子线程的执行完成，然后主线程再继续执行。语言总是苍白的，直接上">
-<meta name="twitter:image" content="http://yoursite.com/2019/05/18/CountDownLatch解析/pasted-1.png">
+<meta name="twitter:title" content="萧易的技术沉淀">
 
 
 
@@ -160,13 +153,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/05/18/CountDownLatch解析/">
+  <link rel="canonical" href="http://yoursite.com/archives/2019/07/">
 
 
 
 
 
-  <title>CountDownLatch解析 | 萧易的技术沉淀</title>
+  <title>归档 | 萧易的技术沉淀</title>
   
 
 
@@ -185,7 +178,7 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <div class="container sidebar-position-left page-archive">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -311,223 +304,72 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
+  
+  
+  
+  <div class="post-block archive">
+    <div id="posts" class="posts-collapse">
+      <span class="archive-move-on"></span>
 
-  
+      <span class="archive-page-counter">
+        
+        
+        
+          
+        
+        嗯..! 目前共计 13 篇日志。 继续努力。
+      </span>
 
-  
-  
-  
+      
+
+        
+        
+        
+
+        
+          
+          <div class="collection-title">
+            <h1 class="archive-year" id="archive-year-2019">2019</h1>
+          </div>
+        
+        
+
+        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/18/CountDownLatch解析/">
+    <header class="post-header">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="萧易">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="萧易的技术沉淀">
-    </span>
-
-    
-      <header class="post-header">
-
+      <h2 class="post-title">
         
+            <a class="post-title-link" href="/2019/07/14/Redis源码解析(二)-跳跃表/" itemprop="url">
+              
+                <span itemprop="name">Redis源码解析(二)-跳跃表</span>
+              
+            </a>
         
-          <h1 class="post-title" itemprop="name headline">CountDownLatch解析</h1>
-        
+      </h2>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-18T21:18:00+08:00">
-                2019-05-18
-              </time>
-            
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated" datetime="2019-07-14T11:00:00+08:00" content="2019-07-14">
+          07-14
+        </time>
+      </div>
 
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JUC/" itemprop="url" rel="index">
-                    <span itemprop="name">JUC</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>之前讲了一下AQS的独占锁，包括公平锁和非公平锁，这次来看看共享锁的内容。<br>  在JUC中，实现共享锁的有两个类：CountDownLatch和Semaphore。今天先来看下比较常用的CountDownLatch。记得第一次用的时候，还是在导师来告诉我可以用这么一个工具类来做一个并发的控制。<br>  CountDownLatch的作用就是等待子线程的执行完成，然后主线程再继续执行。语言总是苍白的，直接上示例。<br>  简单实现一个Runnable,代码如下：<br>  <pre><code>System.out.println(“Prepare to execute task”);<br>  while (true) {<br>    System.out.println(“I’m working”);<br>    try {<br>      Thread.sleep(1000);<br>    } catch (InterruptedException e) {<br>      e.printStackTrace();<br>    }<br>    break;<br>  }<br>  System.out.println(“End execute task”);</code></pre><br>   代码很简单，就是在子线程中Sleep 1s，看下执行效果：</p>
-<p><img src="/2019/05/18/CountDownLatch解析/pasted-1.png" alt="没有使用CountDownLatch时的运行结果"><br> 可以看到，在启动线程后，主线程就直接结束了，而子线程则是在Sleep结束之后终止执行。其实这个时候，而CountDownLatch的作用就是使得主线程可以等待子线程执行结束之后再结束。<br> 再实现一个使用了CountDownLatch的Runnable，代码如下：<br> <pre><code>public CountDownLatchRunnable(CountDownLatch countDownLatch) {<br>    this.countDownLatch = countDownLatch;<br>}<br>@Override<br>public void run() {<br>    System.out.println(“Prepare to execute task”);<br>    while (true) {<br>        System.out.println(“I’m working”);<br>        try {<br>            Thread.sleep(1000);<br>        } catch (InterruptedException e) {<br>            e.printStackTrace();<br>        }<br>        break;<br>    }<br>    System.out.println(“End execute task”);<br>    // 区别就在于，增加了一个countdownLatch，在执行任务完成后，进行countDown<br>    countDownLatch.countDown();<br>}</code></pre><br> 再来看执行效果：</p>
-<p><img src="/2019/05/18/CountDownLatch解析/pasted-2.png" alt="使用CountDownLatch时的运行结果"><br>可以看到主线程是在子线程执行完成后，主线程才执行完成。而区别相较没有CountDownLatch的，就是多了一个CountDownLatch的await方法调用，来看下该方法的具体作用。<br>在使用CountDownLatch时，可以看到在创建对象实例时，需要传入一个int，这个值最终会设置为AQS的state这一变量的值，代码如下：</p>
-<pre><code>public CountDownLatch(int count) {
-    if (count < 0) throw new IllegalArgumentException("count < 0");
-    this.sync = new Sync(count);
-}
-Sync(int count) {
-     setState(count);
-}</code></pre>
-  而之前将独占锁的时候提到过，当AQS的state为0时表示锁没有被使抢占，而每个线程在抢占锁时，也可以指定一个值X，抢占到后，state将增加X；同样，线程释放锁时，state也会减去X。
-  而创建对象时，将state置为一个值，那CountDownLatchRunnable的countDown自然也就是去减去state了，而await自然也就是等待state等于0，也就表明主线程可以继续往下执行了。而共享的意思自然也就是说任何子线程只要持有countDownLatch的实例，就可以进行countDown的操作，类似CountDownLatchRunnable中所做的那样。
-  通过上面的分析，可以看到在初始化state之后，对于共享锁来说，主要的方法应该是有两个：release（countdown）持有的锁资源，循环等待的await。
-  先来看countdown，具体的实现代码如下：
-<pre><code>for (;;) {
-    // 通过死循环的方式，将state减一
-    int c = getState();
-    if (c == 0)
-        return false;
-    int nextc = c-1;
-    if (compareAndSetState(c, nextc))
-    // 返回减一之后state是否为0的判断结果
-        return nextc == 0;
-}</code></pre>
-在将state减一后，会判断state是否被减为了0，如果是的话，则会触发唤醒等待线程的操作：
-<pre><code>if (tryReleaseShared(arg)) {
-   // 如果state等于0，将会唤醒等待线程
-     doReleaseShared();
-     return true;
- }
- return false;</code></pre>
- 其实对于countdownlatch的使用场景来说，只有主线程调用await才会进行等待队列，所以此处唤醒等待线程也就是唤醒主线程。来看下代码：
- <pre><code>for (;;) {
-    Node h = head;
-    if (h != null && h != tail) {
-    // 如果等待的head不为空，则将head唤醒
-        int ws = h.waitStatus;
-        if (ws == Node.SIGNAL) {
-            if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
-                continue;          
-            unparkSuccessor的调用，调用后，h和head将不会相等(h);
-        }
-        else if (ws == 0 &&
-                 !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
-            continue;               
-    }
-    if (h == head)  
-    // 此处的判断是针对主线程的等待循环，会修改head
-        break;
-}</code></pre>
-在通知等待线程后，相对来说也就是主线程被唤醒，将继续往下执行，而这又牵扯到await方法，具体实现代码如下：
-<pre><code>if (tryAcquireShared(arg) < 0)
-  // 在调用await方法时，会先判断state是否为0，为0则不做任何处理，不为0，则将执行 doAcquireSharedInterruptibly
-            doAcquireSharedInterruptibly(arg);</code></pre>
-
-<p> 入队的代码如下：<br> <pre><code>// 当前线程加入等待队列<br>final Node node = addWaiter(Node.SHARED);<br>boolean failed = true;<br>try {<br>    for (;;) {<br>    // 死循环查看state是否为0<br>        final Node p = node.predecessor();<br>        if (p == head) {<br>            int r = tryAcquireShared(arg);<br>            if (r &gt;= 0) {<br>            // 如果state为0，则将将等待节点置为head，也就是持有锁，可以继续进行后续操作<br>                setHeadAndPropagate(node, r);<br>                p.next = null; // help GC<br>                failed = false;<br>                return;<br>            }<br>        }<br>        if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;<br>            parkAndCheckInterrupt())<br>            throw new InterruptedException();<br>    }<br>} finally {<br>    if (failed)<br>        cancelAcquire(node);<br>}</code></pre></p>
-<p>  所以从上可以看出，针对CountDownLatch来说，真正的等待线程只有调用了await方法的线程，而其他子线程则是只负责对state减一。<br>  同样的，如果编码bug，导致state不被减为0，await将会一直死循环等待。<br>  当然调用 await(long timeout, TimeUnit unit)可以解决死等的问题，这个也就是针对等待线程加上了一个等待时长，超时将终止等待。</p>
-
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2019/05/11/AQS浅析/" rel="next" title="AQS浅析">
-                <i class="fa fa-chevron-left"></i> AQS浅析
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/18/Semaphore解析/" rel="prev" title="Semaphore解析">
-                Semaphore解析 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
+    </header>
   </article>
 
 
 
-    <div class="post-spread">
       
+
     </div>
   </div>
+  
+  
+  
+
+  
+
 
 
           </div>
@@ -535,10 +377,6 @@ Sync(int count) {
 
 
           
-
-  
-
-
 
         </div>
         
@@ -762,10 +600,6 @@ Sync(int count) {
 
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
 
   
 
