@@ -412,8 +412,7 @@
       
         
           
-            <p>title: ‘Redis源码解析（一）:字典’<br>date: 2019-06-26 21:46:01</p>
-<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><h4 id="前面说的"><a href="#前面说的" class="headerlink" title="前面说的"></a>前面说的</h4><p>作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。<br>Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。</p>
+            <h4 id="前面说的"><a href="#前面说的" class="headerlink" title="前面说的"></a>前面说的</h4><p>作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。<br>Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。</p>
 <h4 id="字典简介"><a href="#字典简介" class="headerlink" title="字典简介"></a>字典简介</h4><p>字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本上所有的Redis支持的对象都依赖了字典这一数据结构。<br>说到这，不得不先插播一条额外的东西，Redis中支持5中对象类型，分别是：字符串、列表、哈希、集合、有序集合。而每种对象会有不同的底层数据结构，对应redis命令的话，就是type和encoding。其中对象和数据结构的对应关系如下：</p>
 <table>
 <thead>
