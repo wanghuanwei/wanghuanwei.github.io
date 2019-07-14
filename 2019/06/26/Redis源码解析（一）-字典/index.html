@@ -124,7 +124,7 @@
 <meta property="og:site_name" content="萧易的技术沉淀">
 <meta property="og:description" content="前面说的作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。 字典简介字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本上所有的Redis支持的对象都依赖了字典这一数据结构。说到这，不得不先插播一条额外的东西，Redis中支持5中">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-14T02:57:00.116Z">
+<meta property="og:updated_time" content="2019-07-14T02:58:00.144Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis源码解析（一）:字典">
 <meta name="twitter:description" content="前面说的作为在当前互联网环境中最受欢迎的缓存服务，Redids一直受到各大公司的欢迎。今天开始就专门写一个Redis的相关系列。Redis是完全开源的一个系统，源码是C语言，本系列也是基于3.2的版本来写。 字典简介字典这个Redis的底层数据结构，是Redis非常重要的一个数据结构，基本上所有的Redis支持的对象都依赖了字典这一数据结构。说到这，不得不先插播一条额外的东西，Redis中支持5中">
@@ -501,9 +501,7 @@ typedef struct dict {
 <ol>
 <li><h5 id="字典的创建和插入"><a href="#字典的创建和插入" class="headerlink" title="字典的创建和插入"></a>字典的创建和插入</h5>字典在插入第一条数据时，其对应的字典都是已经创建好了的，也就是说他们的内存已经申请，对应的数据初始化也都已经完成了。在插入时，和HashMap的插入类似，根据key的hash值和字典的sizemask求与，得到一个index，也即是ht[0]所对应的table[index]；类比到HashMap，也就是找到对应的node（1.8版本），然后将对应的key value生成的entry放入对应的table中。此处和HashMap不一致的地方是，新加入的节点是放在链表的头部的，和HashMap不同（HashMap放在尾部），猜测此处也是为了快速完成数据的插入而设定的。不过观其源码，其实Redis在插入新的&lt;k,v&gt;时，也是检查了k是否已存在的，只是检查的时候，是放在一个独立的方法来做的，而该方法返回值是k应该存放的index值，所以在实际存放entry时，为了避免浪费时间，就把新的entry放到了头部。</li>
 <li><h5 id="字典的更新"><a href="#字典的更新" class="headerlink" title="字典的更新"></a>字典的更新</h5>数据更新时，dict提供的一个api是dictReplace，先默认key不存在是新加操作，返回失败后，直接更新对应key的值，就完成了操作。</li>
-<li><h5 id="字典的扩容"><a href="#字典的扩容" class="headerlink" title="字典的扩容"></a>字典的扩容</h5><p>当字典的容量达到一定比例时，将启动扩容。但好奇的一点时，Redis在判断是否需要对字典进行扩容时，负载因子竟然是0.1，低的让人不可相信，具体代码如下：<br><pre><code><br>int htNeedsResize(dict *dict) {<br>//判断是否需要对字典进行resize<br> long long size, used;</code></pre></p>
-<p> size = dictSlots(dict);// 字典总的大小<br> used = dictSize(dict); // 已经使用的大小<br> return (size &gt; DICT_HT_INITIAL_SIZE &amp;&amp; (used*100/size &lt; HASHTABLE_MIN_FILL)); //需要resize时，当前size已经是大于默认值4的当前负载因子小于默认最小的负载因子10，因为乘了100，也就是说0.1<br>}<br>void tryResizeHashTables(int dbid) {<br>// 判断redis对应db中的字典和存放带过期时间的key的字典是否需要resize<br> if (htNeedsResize(server.db[dbid].dict))<br>   dictResize(server.db[dbid].dict);<br> if (htNeedsResize(server.db[dbid].expires))<br>   dictResize(server.db[dbid].expires);<br>}<br><br>在resize时，新的size必须大于已使用used的大小，同时是最小2的幂的值。只有size是2的幂时，sizemask才有意义！！</p>
-</li>
+<li><h5 id="字典的扩容"><a href="#字典的扩容" class="headerlink" title="字典的扩容"></a>字典的扩容</h5>当字典的容量达到一定比例时，将启动扩容。但好奇的一点时，Redis在判断是否需要对字典进行扩容时，负载因子竟然是0.1，低的让人不可相信，具体代码如下：<br><pre><code><br>int htNeedsResize(dict <em>dict) {<br>//判断是否需要对字典进行resize<br> long long size, used;<br> size = dictSlots(dict);// 字典总的大小<br> used = dictSize(dict); // 已经使用的大小<br> return (size &gt; DICT_HT_INITIAL_SIZE &amp;&amp; (used</em>100/size &lt; HASHTABLE_MIN_FILL)); //需要resize时，当前size已经是大于默认值4的当前负载因子小于默认最小的负载因子10，因为乘了100，也就是说0.1<br>}<br>void tryResizeHashTables(int dbid) {<br>// 判断redis对应db中的字典和存放带过期时间的key的字典是否需要resize<br> if (htNeedsResize(server.db[dbid].dict))<br>   dictResize(server.db[dbid].dict);<br> if (htNeedsResize(server.db[dbid].expires))<br>   dictResize(server.db[dbid].expires);<br>}<br></code></pre><br>在resize时，新的size必须大于已使用used的大小，同时是最小2的幂的值。只有size是2的幂时，sizemask才有意义！！</li>
 <li><h5 id="渐进式Rehash"><a href="#渐进式Rehash" class="headerlink" title="渐进式Rehash"></a>渐进式Rehash</h5>在实际使用过程中，字典的扩容是伴随着rehash的，因为字典的size变了，同样的hash值，在计算index时，得到的值是不一样的，所以，在扩容时，新的size也是放到ht[1]中，而不是修改正在使用的ht[0]。</li>
 </ol>
 <p>在rehash过程中，新加入的key，会放到ht[1]的table中，同时会有后台任务（100ms执行一次）来执行rehash的操作，每次耗时1ms，将ht[0]中的key，逐步迁移到ht[1]中。每次都是按照table[rehashidx]的值来逐步处理。除了定时任务外，每次Redis在处理操作命令时，也会进行一次耗时1ms的rehash操作。</p>
