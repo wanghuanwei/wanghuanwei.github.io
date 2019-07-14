@@ -119,18 +119,18 @@
 
 <meta name="description" content="写在前面今天的主题是跳跃表，不知道算不算是Redis中特有的一个数据结构，但就我自己而言，第一次见到跳跃表这种数据结构，确实是在Redis中。相较于平衡二叉树，红黑树而言，跳跃表的查询性能也并不差，但是这是就平均而言，查询性能都是O(logN)。最不理想的情况下，跳跃表的查询性能为O(N)。但跳跃表有个很大的优势，不需要旋转。每次红黑树进行操作后，都会进行一次自旋，而跳跃表完全不需要这个操作，所以">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis源码解析(二)-跳跃表">
+<meta property="og:title" content="Redis源码解析二之跳跃表">
 <meta property="og:url" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/index.html">
 <meta property="og:site_name" content="萧易的技术沉淀">
 <meta property="og:description" content="写在前面今天的主题是跳跃表，不知道算不算是Redis中特有的一个数据结构，但就我自己而言，第一次见到跳跃表这种数据结构，确实是在Redis中。相较于平衡二叉树，红黑树而言，跳跃表的查询性能也并不差，但是这是就平均而言，查询性能都是O(logN)。最不理想的情况下，跳跃表的查询性能为O(N)。但跳跃表有个很大的优势，不需要旋转。每次红黑树进行操作后，都会进行一次自旋，而跳跃表完全不需要这个操作，所以">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析(二">
-<meta property="og:image" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析(二">
-<meta property="og:updated_time" content="2019-07-14T09:19:44.438Z">
+<meta property="og:image" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析二之跳跃表/skiplist.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析二之跳跃表/insert.png">
+<meta property="og:updated_time" content="2019-07-14T09:25:17.885Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis源码解析(二)-跳跃表">
+<meta name="twitter:title" content="Redis源码解析二之跳跃表">
 <meta name="twitter:description" content="写在前面今天的主题是跳跃表，不知道算不算是Redis中特有的一个数据结构，但就我自己而言，第一次见到跳跃表这种数据结构，确实是在Redis中。相较于平衡二叉树，红黑树而言，跳跃表的查询性能也并不差，但是这是就平均而言，查询性能都是O(logN)。最不理想的情况下，跳跃表的查询性能为O(N)。但跳跃表有个很大的优势，不需要旋转。每次红黑树进行操作后，都会进行一次自旋，而跳跃表完全不需要这个操作，所以">
-<meta name="twitter:image" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析(二">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析二之跳跃表/skiplist.png">
 
 
 
@@ -166,7 +166,7 @@
 
 
 
-  <title>Redis源码解析(二)-跳跃表 | 萧易的技术沉淀</title>
+  <title>Redis源码解析二之跳跃表 | 萧易的技术沉淀</title>
   
 
 
@@ -342,7 +342,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis源码解析(二)-跳跃表</h1>
+          <h1 class="post-title" itemprop="name headline">Redis源码解析二之跳跃表</h1>
         
 
         <div class="post-meta">
@@ -414,7 +414,7 @@
       
 
       
-        <h4 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h4><p>今天的主题是跳跃表，不知道算不算是Redis中特有的一个数据结构，但就我自己而言，第一次见到跳跃表这种数据结构，确实是在Redis中。相较于平衡二叉树，红黑树而言，跳跃表的查询性能也并不差，但是这是就平均而言，查询性能都是O(logN)。最不理想的情况下，跳跃表的查询性能为O(N)。但跳跃表有个很大的优势，不需要旋转。每次红黑树进行操作后，都会进行一次自旋，而跳跃表完全不需要这个操作，所以在写的时候，性能要高很多。<br>来个跳跃表的示例图：<img src="/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析(二" alt="跳跃示例">-跳跃表/skiplist.png)</p>
+        <h4 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h4><p>今天的主题是跳跃表，不知道算不算是Redis中特有的一个数据结构，但就我自己而言，第一次见到跳跃表这种数据结构，确实是在Redis中。相较于平衡二叉树，红黑树而言，跳跃表的查询性能也并不差，但是这是就平均而言，查询性能都是O(logN)。最不理想的情况下，跳跃表的查询性能为O(N)。但跳跃表有个很大的优势，不需要旋转。每次红黑树进行操作后，都会进行一次自旋，而跳跃表完全不需要这个操作，所以在写的时候，性能要高很多。<br>来个跳跃表的示例图：<img src="/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析二之跳跃表/skiplist.png" alt="跳跃表示例"></p>
 <h4 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h4><p>跳跃表的查询，是通过插入就可以看出来是怎么操作的。<br>在插入时，跳跃表会先进行查询，查询到需要插入的位置，然后再执行插入操作。</p>
 <p>跳跃表每插入一个节点，都会给节点随机一个level，指定节点的层级，level的范围是1-64</p>
 <pre><code>
@@ -474,7 +474,7 @@ int zslRandomLevel(void) {
     }
 </code></pre>
 
-<p>可以参考下图：<br><img src="/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析(二" alt="跳跃插入">-跳跃表/insert.png)</p>
+<p>可以参考下图：<br><img src="/2019/07/14/Redis源码解析(二)-跳跃表/Redis源码解析二之跳跃表/insert.png" alt="跳跃插入"></p>
 <h4 id="更新score"><a href="#更新score" class="headerlink" title="更新score"></a>更新score</h4><p>跳跃表在Redis中，是结合字典构成了zset的底层存储结构（在zset数据量较少时，会使用ziplist数据结构，当数量超过一定值后，切换成字典+跳跃表的形式），所以跳跃表都是有序的，按照score值进行由小到大的排序。<br>而zset中，每个节点都有一个score值，用来排序。所以当一个节点的score被更新时，就有可能会涉及到跳跃表的重排序<br>具体步骤如下：</p>
 <ol>
 <li>查找到需要更新的节点</li>
