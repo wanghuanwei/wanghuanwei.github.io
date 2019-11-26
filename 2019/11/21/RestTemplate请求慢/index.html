@@ -117,17 +117,17 @@
 
 
 
-<meta name="description" content="三次失败的阿里面试 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。 顿时恍">
+<meta name="description" content="1.前因来新公司之后，一直在梳理业务相关的东西，也忽略了一些内容。这周就发现一个很申请的问题，使用RestTemplate请求其他业务时，第一次请求要比之后的请求慢近500ms，由于是视觉处理相关的接口，整体的延时一直比较高，所以之前没有注意。而这次发现这个问题也是因为优化了代码之后，本应该在1S左右的请求，竟然第一次达到了1.5S，才注意到这么诡异的一个问题。 2.定位前分析仔细思索了一下一个完">
 <meta property="og:type" content="article">
-<meta property="og:title" content="金三的三次失败面试">
-<meta property="og:url" content="http://yoursite.com/2019/05/04/金三的三次失败面试/index.html">
+<meta property="og:title" content="RestTemplate请求慢">
+<meta property="og:url" content="http://yoursite.com/2019/11/21/RestTemplate请求慢/index.html">
 <meta property="og:site_name" content="萧易的技术沉淀">
-<meta property="og:description" content="三次失败的阿里面试 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。 顿时恍">
+<meta property="og:description" content="1.前因来新公司之后，一直在梳理业务相关的东西，也忽略了一些内容。这周就发现一个很申请的问题，使用RestTemplate请求其他业务时，第一次请求要比之后的请求慢近500ms，由于是视觉处理相关的接口，整体的延时一直比较高，所以之前没有注意。而这次发现这个问题也是因为优化了代码之后，本应该在1S左右的请求，竟然第一次达到了1.5S，才注意到这么诡异的一个问题。 2.定位前分析仔细思索了一下一个完">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-05-04T10:11:24.768Z">
+<meta property="og:updated_time" content="2019-11-26T14:46:47.585Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="金三的三次失败面试">
-<meta name="twitter:description" content="三次失败的阿里面试 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。 顿时恍">
+<meta name="twitter:title" content="RestTemplate请求慢">
+<meta name="twitter:description" content="1.前因来新公司之后，一直在梳理业务相关的东西，也忽略了一些内容。这周就发现一个很申请的问题，使用RestTemplate请求其他业务时，第一次请求要比之后的请求慢近500ms，由于是视觉处理相关的接口，整体的延时一直比较高，所以之前没有注意。而这次发现这个问题也是因为优化了代码之后，本应该在1S左右的请求，竟然第一次达到了1.5S，才注意到这么诡异的一个问题。 2.定位前分析仔细思索了一下一个完">
 
 
 
@@ -157,13 +157,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/05/04/金三的三次失败面试/">
+  <link rel="canonical" href="http://yoursite.com/2019/11/21/RestTemplate请求慢/">
 
 
 
 
 
-  <title>金三的三次失败面试 | 萧易的技术沉淀</title>
+  <title>RestTemplate请求慢 | 萧易的技术沉淀</title>
   
 
 
@@ -322,7 +322,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/04/金三的三次失败面试/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/21/RestTemplate请求慢/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="萧易">
@@ -339,7 +339,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">金三的三次失败面试</h1>
+          <h1 class="post-title" itemprop="name headline">RestTemplate请求慢</h1>
         
 
         <div class="post-meta">
@@ -351,8 +351,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-04T17:46:04+08:00">
-                2019-05-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-21T22:01:00+08:00">
+                2019-11-21
               </time>
             
 
@@ -411,7 +411,19 @@
       
 
       
-        <p>三次失败的阿里面试<br> 在金三银四的两个月内，经过猎头内退，投了三次阿里：蚂蚁金服，饿了么，阿里新制造。很失望，三次全挂。<br> 第一次的蚂蚁，前两面过了，第三面挂了。结束之后想了很多，总觉得自己的失败是因为设计经验不够，在架构方面太弱导致失败。结果接下来的饿了么和新制造都是二面聊的轻松加愉快，然后把我挂掉了。万幸的是投了新制造之后，一个阿里的大神加了微信，问了一下失败原因，答曰：技术深度有所欠缺。<br> 顿时恍然，其实，三次失败的原因追根到底都是深度不够。<br> 比如蚂蚁三面的实话，主要就是在拿项目中的一个点在一点点的深挖。结果在很开始的时候就走错了方向，然后就一直错下去，直到问到一个可能误解的问题，然后结束！其实这个问题当时也看过相关的文章，就是简单的缓存一致性问题。但确实是沉淀，深度不够，没有理解更深层次的东西，就忽略了很多东西。<br> 而饿了么和新制造的二面都是直接挂掉的，也都是同样的深度不够。比如当时问的一个什么对象可以作为GC Roots，真的是一瞬间楞掉，卡了很久，面试官肯定也就觉得这个候选人不行了。其实多思考一下，肯定是在短暂时间内绝对不会被GC或者说正在使用的对象，都是可以作为GC Roots的，但楞了一下之后，虽然也是这个思路，竟然猜测的是Main Class。。。也是让人服气<br> 其实工作了这么多年，如果不是这次面试，可能也不会真的整理一下自己的知识库。优秀的人总是有一些共性，而失败的人，却有很多理由。、<br> 总的发现，多总结一下自己的知识库，总是能提高很多的。<br> 另外一个就是电面的时候，一定要把自己的思路先说出来，让面试官知道，这样即使答案可能有误，但至少过程还是对了一部分。就像上学时候，考数理化，即使答案错了，只要步骤对，总能拿到分，甚至有时还超出自己期望的分数</p>
+        <h3 id="1-前因"><a href="#1-前因" class="headerlink" title="1.前因"></a>1.前因</h3><p>来新公司之后，一直在梳理业务相关的东西，也忽略了一些内容。这周就发现一个很申请的问题，使用RestTemplate请求其他业务时，第一次请求要比之后的请求慢近500ms，由于是视觉处理相关的接口，整体的延时一直比较高，所以之前没有注意。而这次发现这个问题也是因为优化了代码之后，本应该在1S左右的请求，竟然第一次达到了1.5S，才注意到这么诡异的一个问题。</p>
+<h3 id="2-定位前分析"><a href="#2-定位前分析" class="headerlink" title="2.定位前分析"></a>2.定位前分析</h3><p>仔细思索了一下一个完整HTTP请求应该走的几个大步骤：</p>
+<ol>
+<li>通过DNS解析域名获取到IP</li>
+<li>通过TCP建立</li>
+<li>发送请求并接收响应</li>
+<li>断开连接</li>
+<li>对于RestTemplate来说，默认都是使用长连接，所以在TCP建立一个连接之后，接下来的请求会复用第一次创建的连接以节省时间。而接下来的请求也证明了这一点，后续的请求要比第一次快上近500MS。所以这500MS基本上可以判断出是花费在了1和2两个步骤上，也就是解析域名和建立连接。</li>
+</ol>
+<h3 id="3-确认分析"><a href="#3-确认分析" class="headerlink" title="3.确认分析"></a>3.确认分析</h3><p>既然分析是1和2两步导致的，就可以简单来确认一下。<br>RestTemplate的长连接默认一般是在几分钟内保持连接，超过也会主动断掉。而这一特征可以帮我们来确认是否是解析域名和建立连接导致的耗时超长。发送两次请求之后，停10分钟左右再次发送一次请求，可以看到请求耗时相比较来说也是增加了500MS。这也间接证明了之前的分析。<br>除此之外，通过添加日志埋点，也可以观察到，在调用Connection的connect方法时，初次请求要比后续的请求慢上不少。</p>
+<h4 id="4-解决方法"><a href="#4-解决方法" class="headerlink" title="4.解决方法"></a>4.解决方法</h4><p>其实这两步是一个HTTP请求中必不可少的两步，不可能完全避免的。而我的请求慢的原因也尝试使用修改hosts来避免解析域名来减少部分延迟，但效果一般，少不了太多，达不到后续请求的平均耗时。通过OkHttpClient也可以通过自定义Dns实现，来解决域名解析耗时的问题。但这种方式会固定IP和域名的映射关系，如果映射关系修改了的话，将会导致请求完全发送不了的问题。所以并没有采用这种方式。</p>
+<p>而针对怀疑建立连接慢的第二步，可以通过使用连接池，增加连接保持时长来尽量减少这一耗时。这中配置很多，随便一搜都可以找到对应配置</p>
+<h3 id="5-扩展阅读之TCP"><a href="#5-扩展阅读之TCP" class="headerlink" title="5.扩展阅读之TCP"></a>5.扩展阅读之TCP</h3><p>TCP/IP协议其实状态也就这么几个，但之间的转换还是比较复杂，正好借此复习一下三次握手和四次挥手的机制。<br>贴一篇文章吧，相对来说分析的还是比较好了：<br><a href="https://blog.csdn.net/xy010902100449/article/details/48274635" target="_blank" rel="noopener">https://blog.csdn.net/xy010902100449/article/details/48274635</a></p>
 
       
     </div>
@@ -436,8 +448,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/22/first-blog/" rel="next" title="开篇">
-                <i class="fa fa-chevron-left"></i> 开篇
+              <a href="/2019/07/14/Redis源码解析(二)-跳跃表/" rel="next" title="Redis源码解析二之跳跃表">
+                <i class="fa fa-chevron-left"></i> Redis源码解析二之跳跃表
               </a>
             
           </div>
@@ -445,10 +457,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/08/ReetrantLock浅析/" rel="prev" title="ReetrantLock浅析">
-                ReetrantLock浅析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -500,8 +508,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -563,6 +580,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-前因"><span class="nav-number">1.</span> <span class="nav-text">1.前因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-定位前分析"><span class="nav-number">2.</span> <span class="nav-text">2.定位前分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-确认分析"><span class="nav-number">3.</span> <span class="nav-text">3.确认分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-解决方法"><span class="nav-number">3.1.</span> <span class="nav-text">4.解决方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-扩展阅读之TCP"><span class="nav-number">4.</span> <span class="nav-text">5.扩展阅读之TCP</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

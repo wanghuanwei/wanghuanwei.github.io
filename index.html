@@ -319,6 +319,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/21/RestTemplate请求慢/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="萧易">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="萧易的技术沉淀">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/21/RestTemplate请求慢/" itemprop="url">RestTemplate请求慢</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-21T22:01:00+08:00">
+                2019-11-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/杂谈/" itemprop="url" rel="index">
+                    <span itemprop="name">杂谈</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="1-前因"><a href="#1-前因" class="headerlink" title="1.前因"></a>1.前因</h3><p>来新公司之后，一直在梳理业务相关的东西，也忽略了一些内容。这周就发现一个很申请的问题，使用RestTemplate请求其他业务时，第一次请求要比之后的请求慢近500ms，由于是视觉处理相关的接口，整体的延时一直比较高，所以之前没有注意。而这次发现这个问题也是因为优化了代码之后，本应该在1S左右的请求，竟然第一次达到了1.5S，才注意到这么诡异的一个问题。</p>
+<h3 id="2-定位前分析"><a href="#2-定位前分析" class="headerlink" title="2.定位前分析"></a>2.定位前分析</h3><p>仔细思索了一下一个完整HTTP请求应该走的几个大步骤：</p>
+<ol>
+<li>通过DNS解析域名获取到IP</li>
+<li>通过TCP建立</li>
+<li>发送请求并接收响应</li>
+<li>断开连接</li>
+<li>对于RestTemplate来说，默认都是使用长连接，所以在TCP建立一个连接之后，接下来的请求会复用第一次创建的连接以节省时间。而接下来的请求也证明了这一点，后续的请求要比第一次快上近500MS。所以这500MS基本上可以判断出是花费在了1和2两个步骤上，也就是解析域名和建立连接。</li>
+</ol>
+<h3 id="3-确认分析"><a href="#3-确认分析" class="headerlink" title="3.确认分析"></a>3.确认分析</h3><p>既然分析是1和2两步导致的，就可以简单来确认一下。<br>RestTemplate的长连接默认一般是在几分钟内保持连接，超过也会主动断掉。而这一特征可以帮我们来确认是否是解析域名和建立连接导致的耗时超长。发送两次请求之后，停10分钟左右再次发送一次请求，可以看到请求耗时相比较来说也是增加了500MS。这也间接证明了之前的分析。<br>除此之外，通过添加日志埋点，也可以观察到，在调用Connection的connect方法时，初次请求要比后续的请求慢上不少。</p>
+<h4 id="4-解决方法"><a href="#4-解决方法" class="headerlink" title="4.解决方法"></a>4.解决方法</h4><p>其实这两步是一个HTTP请求中必不可少的两步，不可能完全避免的。而我的请求慢的原因也尝试使用修改hosts来避免解析域名来减少部分延迟，但效果一般，少不了太多，达不到后续请求的平均耗时。通过OkHttpClient也可以通过自定义Dns实现，来解决域名解析耗时的问题。但这种方式会固定IP和域名的映射关系，如果映射关系修改了的话，将会导致请求完全发送不了的问题。所以并没有采用这种方式。</p>
+<p>而针对怀疑建立连接慢的第二步，可以通过使用连接池，增加连接保持时长来尽量减少这一耗时。这中配置很多，随便一搜都可以找到对应配置</p>
+<h3 id="5-扩展阅读之TCP"><a href="#5-扩展阅读之TCP" class="headerlink" title="5.扩展阅读之TCP"></a>5.扩展阅读之TCP</h3><p>TCP/IP协议其实状态也就这么几个，但之间的转换还是比较复杂，正好借此复习一下三次握手和四次挥手的机制。<br>贴一篇文章吧，相对来说分析的还是比较好了：<br><a href="https://blog.csdn.net/xy010902100449/article/details/48274635" target="_blank" rel="noopener">https://blog.csdn.net/xy010902100449/article/details/48274635</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/14/Redis源码解析(二)-跳跃表/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1878,151 +2032,6 @@ Sync(int count) {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/11/AQS浅析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="萧易">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/14055251?s=400&u=add42f8954fab30e11d0ecfdbc130b25da161103&v=4">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="萧易的技术沉淀">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/11/AQS浅析/" itemprop="url">AQS浅析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-11T21:30:00+08:00">
-                2019-05-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JUC/" itemprop="url" rel="index">
-                    <span itemprop="name">JUC</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>上一篇看了一下公平锁和非公平锁在代码上的差别，其实看到主要的逻辑很多都是在AQS中实现的，所以今天再来看下AQS。<br>  AbstractQueuedSynchronizer，简称AQS，继承了AbstractOwnableSynchronizer这一抽象类，AbstractOwnableSynchronizer主要是管理当前持有锁的线程。<br>  AQS中，有一个volatile变量，state，表明了当前锁的状态，为0时表明锁处于空闲状态，也即是没有被任何线程持有，所以在ReentrantLock中，在获取锁时，都是先判断state是否等于0。<br>  除此之外，AQS还维护了一个双向链表，来存放等待队列，如下：<br>  <pre><code><br>       +——+  prev +—–+       +—–+<br>head |      | &lt;—- |     | &lt;—- |     |  tail<br>     +——+       +—–+       +—–+<br>     </code></pre></p>
-<p>  简单来说，在线程来请求锁时，如果锁被其他线程持有且不是当前请求锁的线程，则将线程入队，然后循环请求锁。<br>  对于公平锁和非公平锁，入队的操作都是一致的，具体的代码如下：</p>
-<p>  <pre><code><br>  final long deadline = System.nanoTime() + nanosTimeout;<br>  // 先创建一个Node，以独占的方式存放当前线程，在addWaiter中，如果tail不为空，则将新建的node放到队尾，如果tail为空，则在循环中，通过CAS将node设置为head或者tail<br>  final Node node = addWaiter(Node.EXCLUSIVE);<br>  boolean failed = true;<br>  try {<br>    for (;;) {<br>     final Node p = node.predecessor();<br>     if (p == head &amp;&amp; tryAcquire(arg)) {<br>     // 如果节点的preNode是head，且当前节点获取到了锁，则将当前节点置为head，同时返回true，此处的tryAcquire就是上一篇中的Fair和NonFair的实现<br>       setHead(node);<br>       p.next = null; // 这一步其实就是将preNode置为一个无人引用且不引用他人的状态，利于GC<br>       failed = false;<br>       return true;<br>     }<br>     nanosTimeout = deadline - System.nanoTime();<br>     if (nanosTimeout &lt;= 0L) {<br>        // 判断是否等待超时，超时则返回false，也即请求锁失败<br>        return false;<br>     }<br>    if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;<br>       nanosTimeout &gt; spinForTimeoutThreshold) ｛<br>       // 在申请锁失败后，判断是否需要进行等待，主要是通过判断preNode是否已经获取到锁等待signal，如果是则等待，不是则不等待，等待1000ns<br>        LockSupport.parkNanos(this,nanosTimeout);<br>     }<br>     if (Thread.interrupted())<br>       throw new InterruptedException();<br>    }<br>  } finally {<br>    if (failed)<br>    // 如果申请锁失败，则将对应node的状态置为cancel<br>       cancelAcquire(node);<br>  }<br>  </code></pre><br>  其实从上面的代码可以看到，在入队后，非公平锁的等待线程也会按照顺序依次来获取锁（强制条件，preNode==head）！！</p>
-<p>  以上，对于请求独占锁，AQS就这些内容了。先请求锁，请求不到则入队，在队列中依次来获取锁，知道获取到或者等待超时结束。<br>  当然还有release，对于ReentrantLock，release其实没太有太复杂的东西，就是将持有的锁释放，但由于释放的步骤是先将锁的状态置为0，独占线程置为空，然后再唤醒等待中的head；当然这个过程也给了其他线程机会，也就有了公平锁和非公平锁的区别。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2075,7 +2084,7 @@ Sync(int count) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
